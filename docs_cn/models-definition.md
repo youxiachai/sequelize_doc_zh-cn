@@ -23,68 +23,86 @@ var Task = sequelize.define('Task', {
 ```
 
 You can also set some options on each column:
+你也可以为每列设置一些选项
 
 ```js
 var Foo = sequelize.define('Foo', {
  // instantiating will automatically set the flag to true if not set
+ // 初始化将会自动把这个标示设置为true，如果没有设置
  flag: { type: Sequelize.BOOLEAN, allowNull: false, defaultValue: true},
 
  // default values for dates => current time
+ ／／默认的时间值为当前时间
  myDate: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
 
  // setting allowNull to false will add NOT NULL to the column, which means an error will be
  // thrown from the DB when the query is executed if the column is null. If you want to check that a value
  // is not null before querying the DB, look at the validations section below.
+ // 设置运行allowNull为false将会添加 NOT NUll 到 column上，这意味着一个执行这个column为null的时候会抛出错误异常。如果你想检查这个值是不是null在数据库查询钱，请看后边的章节
  title: { type: Sequelize.STRING, allowNull: false},
 
  // Creating two objects with the same value will throw an error. The unique property can be either a
  // boolean, or a string. If you provide the same string for multiple columns, they will form a
  // composite unique key.
+ //创建两个相同值的对象将会抛出一个错误。unique属性可以是一个boolean值或者一个string。如果你提供对多个columns为一个stirng，他们将会是一个composite unique key
  someUnique: {type: Sequelize.STRING, unique: true},
  uniqueOne: { type: Sequelize.STRING,  unique: 'compositeIndex'},
  uniqueTwo: { type: Sequelize.INTEGER, unique: 'compositeIndex'}
 
  // The unique property is simply a shorthand to create a unique index.
+ //这个unique属性简写创建一个unique 索引
  someUnique: {type: Sequelize.STRING, unique: true}
  // It's exactly the same as creating the index in the model's options.
+ //这样是完全一样的为一个模型创建索引
  {someUnique: {type: Sequelize.STRING}},
  {indexes: [{unique: true, fields: ['someUnique']}]}
 
  // Go on reading for further information about primary keys
+ //现在阅读更多关于primary keys
  identifier: { type: Sequelize.STRING, primaryKey: true},
 
  // autoIncrement can be used to create auto_incrementing integer columns
+ //自动递增可以在类型为integer columns创建auto_incrementing
  incrementMe: { type: Sequelize.INTEGER, autoIncrement: true },
 
  // Comments can be specified for each field for MySQL and PG
+ // Mysql 或者 PG可以指定每个columns的注释
  hasComment: { type: Sequelize.INTEGER, comment: "I'm a comment!" },
 
  // You can specify a custom field name via the "field" attribute:
+ //你可以指定一个自定义的字段名通过“field”属性
  fieldWithUnderscores: { type: Sequelize.STRING, field: "field_with_underscores" },
 
  // It is possible to create foreign keys:
+ //创建外键也是可以的
  bar_id: {
    type: Sequelize.INTEGER,
 
    references: {
      // This is a reference to another model
+     //这个是引用其他model
      model: Bar,
 
      // This is the column name of the referenced model
+     //这个是引用模型的column名字
      key: 'id',
 
      // This declares when to check the foreign key constraint. PostgreSQL only.
+     //在检查的时候宣告外键的约束，只有PostgreSQL支持
      deferrable: Sequelize.Deferrable.INITIALLY_IMMEDIATE
    }
  }
 })
 ```
-
+//可选注释也可以用在table上，详见[model configuration][0]
 The comment option can also be used on a table, see [model configuration][0]
 
 ## Data types
+## 数据类型
 
 Below are some of the datatypes supported by sequelize. For a full and updated list, see [DataTypes](../api/datatypes).
+
+以下是一些sequelize支持的类型。全部的列表见[DataTypes](../api/datatypes).
 
 ```js
 Sequelize.STRING                      // VARCHAR(255)
@@ -138,15 +156,21 @@ The BLOB data type allows you to insert data both as strings and as buffers. Whe
 
 If you are working with the PostgreSQL TIMESTAMP WITHOUT TIME ZONE and you need to parse it to a different timezone, please use the pg library's own parser:
 
+BLOB数据类型运行你插入的数据作为strings和buffers。当你在模型上的一个BLOB column上使用find or findAll。将会总是作为buffer返回
+
 ```js
 require('pg').types.setTypeParser(1114, function(stringValue) {
   return new Date(stringValue + "+0000");
   // e.g., UTC offset. Use any offset that you would like.
+  // e.g., UTC 偏移值。你可以喜欢用任意的偏移值。
 });
 ```
 
-In addition to the type mentioned above, integer, bigint, float and double also support unsigned and zerofill properties, which can be combined in any order:
+In addition to the type mentioned above, integer, bigint, float ®®and double also support unsigned and zerofill properties, which can be combined in any order:
 Be aware that this does not apply for PostgreSQL!
+
+除了上面的类型，integer, bigint, float ®®and double 也支持unsigned and zerofill 属性，可以以任意顺序结合
+要注意的是这些属性不支持PostgreSQL
 
 ```js
 Sequelize.INTEGER.UNSIGNED              // INTEGER UNSIGNED
@@ -157,9 +181,10 @@ Sequelize.INTEGER(11).UNSIGNED.ZEROFILL // INTEGER(11) UNSIGNED ZEROFILL
 ```
 
 _The examples above only show integer&comma; but the same can be done with bigint and float_
+上面的例子只显示了integer，对于bigint 和 float 同样可以
 
 Usage in object notation:
-
+使用在对象的标记上：
 ```js
 // for enums:
 sequelize.define('model', {
@@ -171,23 +196,30 @@ sequelize.define('model', {
 ```
 
 ## Deferrable
-
+## 可延缓
 When you specify a foreign key column it is optionally possible to declare the deferrable
 type in PostgreSQL. The following options are available:
 
+在PostgreSQL，你可以指定外键column是可选可以描述成deferrable属性，以下配置是可以的
+
 ```js
 // Defer all foreign key constraint check to the end of a transaction
+// 定义所有的外键约束在事务结束的时候检查
 Sequelize.Deferrable.INITIALLY_DEFERRED
 
 // Immediately check the foreign key constraints
+// 立即检查外键约束
 Sequelize.Deferrable.INITIALLY_IMMEDIATE
 
 // Don't defer the checks at all
+// 不延迟检查
 Sequelize.Deferrable.NOT
 ```
 
 The last option is the default in PostgreSQL and won't allow you to dynamically change
 the rule in a transaction. See [the transaction section](transactions/#options) for further information.
+
+最好一个选项是PostgreSQL默认的配置，它不允许你在事务的时候动态修改。更多信息见[the transaction section](transactions/#options)
 
 ## Getters & setters
 
@@ -200,8 +232,16 @@ Getters and Setters can be defined in 2 ways (you can mix and match these 2 appr
 
 **N.B:** If a getter or setter is defined in both places then the function found in the relevant property definition will always take precedence.
 
+
+定义'object-property'的getter和setter是可以的，这些可以使用'protecting'属性数据库字段和定义'pseudo'属性。
+
+Getters and Setters可以以两种方式定义（你可以混合使用这2种方式）
+* 作为单一属性的定义
+* 作为模型的选项
+
 ### Defining as part of a property
 
+### 作为一个属性定义
 ```js
 var Employee = sequelize.define('Employee', {
   name:  {
@@ -210,6 +250,7 @@ var Employee = sequelize.define('Employee', {
     get      : function()  {
       var title = this.getDataValue('title');
       // 'this' allows you to access attributes of the instance
+      // ‘this’ 运行你放访问实例的属性
       return this.getDataValue('name') + ' (' + title + ')';
     },
   },
@@ -232,9 +273,16 @@ Employee
 
 ### Defining as part of the model options
 
+### 作用模型的选项定义
+
 Below is an example of defining the getters and setters in the model options. The `fullName` getter,  is an example of how you can define pseudo properties on your models - attributes which are not actually part of your database schema. In fact, pseudo properties can be defined in two ways: using model getters, or by using a column with the [`VIRTUAL` datatype](../api/datatypes#virtual). Virtual datatypes can have validations, while getters for virtual attributes cannot.
 
 Note that the `this.firstname` and `this.lastname` references in the `fullName` getter function will trigger a call to the respective getter functions. If you do not want that then use the `getDataValue()` method to access the raw value (see below).
+
+下面的例子是作为模型的选项定义getters and setters。 `fullName` getter 这个例子是让你可以怎样定义一个pseudo属性在你的模型上。这个属性实际上并不在你的数据库定义上。实际上，pseudo属性可以有两种方式定义：使用模型的getters，或者使用column [`VIRTUAL` datatype](../api/datatypes#virtual). Virtual数据类型可以使用验证，在getters作为virtual属性的时候就不能
+
+
+注意`this.firstname` and `this.lastname`在`fullName` getter引用将会触发各自的getter函数。如果你不想可以使用`getDataValue()`方法访问原始的数据（往下看）。
 
 ```js
 var Foo = sequelize.define('Foo', {
@@ -260,17 +308,22 @@ var Foo = sequelize.define('Foo', {
 
 * retrieving an underlying property value - always use `this.getDataValue()`
 
+* 取回一个表面的属性值总是使用`this.getDataValue()`
+
 ```js
 /* a getter for 'title' property */
+/*一个获取'title'属性值的getter*/
 function() {
     return this.getDataValue('title');
 }
 ```
 
 * setting an underlying property value - always use `this.setDataValue()`
+* 设置一个表面的属性值总是使用`this.setDataValue()`
 
 ```js
 /* a setter for 'title' property */
+/*一个设置'title'属性值的setting *／
 function(title) {
     return this.setDataValue('title', title.toString().toLowerCase());
 }
@@ -278,7 +331,10 @@ function(title) {
 
 **N.B:** It is important to stick to using the `setDataValue()` and `getDataValue()` functions (as opposed to accessing the underlying "data values" property directly) - doing so protects your custom getters and setters from changes in the underlying model implementations.
 
+**注意:**坚持使用`setDataValue()` and `getDataValue()`(立即的访问底层"data values"属性)是很重要的，这样可以保护来自于自定义的getters and setters对于值变化的实现
+
 ## Validations
+## 验证
 
 Model validations, allow you to specify format&sol;content&sol;inheritance validations for each attribute of the model&period;
 

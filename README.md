@@ -4,7 +4,7 @@ sequelize doc 简体中文版本
 article | zh-cn | check |
 ------- | ------ | ----- |
 getting-started.md | yes | checking |
-schema.md | no | |
+schema.md | yes | checking |
 models-definition.md | no | |
 models-usage.md | no | |
 querying.md | no | |
